@@ -4,7 +4,7 @@ use super::graph::DiGraph;
 use rayon::prelude::*;
 use std::{
     collections::VecDeque,
-    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
+    sync::atomic::{AtomicBool, Ordering},
 };
 
 pub fn sequential<G>(digraph: &G, src_vertex: usize) -> Vec<Option<usize>>
@@ -32,46 +32,42 @@ where
     G: DiGraph,
     for<'a> &'a G: Sync + Send,
 {
-    let reached = Vec::from_iter((0..digraph.size()).map(|u| {
-        if u == src_vertex {
-            AtomicBool::new(true)
-        } else {
-            AtomicBool::new(false)
-        }
-    }));
-    let dist_tmp = Vec::from_iter((0..digraph.size()).map(|_| AtomicUsize::new(0)));
+    let reached = Vec::from_iter((0..digraph.size()).map(|u| AtomicBool::new(u == src_vertex)));
+    let mut dist =
+        Vec::from_iter((0..digraph.size()).map(|u| if u == src_vertex { Some(0) } else { None }));
     let mut frontier = vec![src_vertex];
+
     for cur_dist in 1.. {
         if frontier.is_empty() {
             break;
         }
 
         frontier = frontier
-            .par_iter()
-            .map(|u_ref| digraph.output_neigh(*u_ref))
-            .flatten()
-            .flat_map(|v| {
-                if let Ok(_) =
-                    reached[v].compare_exchange(false, true, Ordering::Relaxed, Ordering::Relaxed)
-                {
-                    dist_tmp[v].store(cur_dist, Ordering::Relaxed);
-                    Some(v)
-                } else {
-                    None
-                }
+            .into_par_iter()
+            .map(|u| digraph.output_neigh(u))
+            .flat_map(|neigh_vec| {
+                neigh_vec
+                    .into_iter()
+                    .flat_map(|v| {
+                        if !reached[v].load(Ordering::Relaxed)
+                            && reached[v]
+                                .compare_exchange(false, true, Ordering::Relaxed, Ordering::Relaxed)
+                                .is_ok()
+                        {
+                            // dist_tmp[v].store(cur_dist, Ordering::Relaxed);
+                            // unsafe {
+                            //     *(&dist[v] as *const _ as *mut _) = Some(cur_dist);
+                            // }
+                            dist[v] = Some(cur_dist);
+                            Some(v)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<usize>>()
             })
             .collect();
     }
 
-    dist_tmp
-        .into_par_iter()
-        .zip(reached.into_par_iter())
-        .map(|(d, is_r)| {
-            if is_r.load(Ordering::Relaxed) {
-                Some(d.load(Ordering::Relaxed))
-            } else {
-                None
-            }
-        })
-        .collect()
+    dist
 }

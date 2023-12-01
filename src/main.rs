@@ -1,3 +1,5 @@
+use std::time;
+
 use cw_2::{bfs, graph::DiGraph};
 
 struct CubeDiGraph {
@@ -11,7 +13,7 @@ impl CubeDiGraph {
 
     fn vertex_to_cube_node(&self, vertex: usize) -> (usize, usize, usize) {
         let x = vertex / (self.edge + 1).pow(2);
-        let y = vertex % (self.edge + 1).pow(2) / (self.edge + 1);
+        let y = (vertex % (self.edge + 1).pow(2)) / (self.edge + 1);
         let z = vertex % (self.edge + 1);
         (x, y, z)
     }
@@ -45,18 +47,29 @@ impl DiGraph for CubeDiGraph {
 }
 
 fn main() {
-    let digraph = CubeDiGraph::new(500);
-    println!("1");
-    let dist_seq = bfs::sequential(&digraph, 0);
-    println!("2");
-    let dist_par = rayon::ThreadPoolBuilder::new()
-        .num_threads(4)
-        .build()
-        .map(|pool| pool.install(|| bfs::parallel(&digraph, 0)))
-        .unwrap();
-    println!("3");
+    let digraph = CubeDiGraph::new(1);
 
-    // println!("dist_seq={:?}", dist_seq);
-    // println!("dist_par={:?}", dist_par);
+    let dist_seq = {
+        println!("Start seq");
+        let now = time::Instant::now();
+        let dist_seq = bfs::sequential(&digraph, 0);
+        println!("Seq time: {:.3}", now.elapsed().as_secs_f64());
+        dist_seq
+    };
+
+    let dist_par = {
+        println!("Start par");
+        let now = time::Instant::now();
+        let dist_par = rayon::ThreadPoolBuilder::new()
+            .num_threads(4)
+            .build()
+            .map(|pool| pool.install(|| bfs::parallel(&digraph, 0)))
+            .unwrap();
+        println!("Par time: {:.3}", now.elapsed().as_secs_f64());
+        dist_par
+    };
+
+    println!("dist_seq={:?}", dist_seq);
+    println!("dist_par={:?}", dist_par);
     println!("{}", dist_seq == dist_par);
 }
