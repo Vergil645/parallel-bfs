@@ -1,8 +1,0 @@
-[package]
-name = "cw-2"
-version = "0.1.0"
-authors = ["Kolesov Matvey <kolesov645@gmail.com>"]
-edition = "2021"
-
-[dependencies]
-rayon = "1.8.0"
