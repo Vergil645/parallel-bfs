@@ -1,7 +1,6 @@
 cc_library(
     name = "par",
-    srcs = ["par.cc"],
     hdrs = ["par.hh"],
-    deps = ["@parlaylib//:parlaylib", "//lib/graph:graph"],
+    deps = ["@parlaylib//:parlaylib"],
     visibility = ["//visibility:public"],
 )
