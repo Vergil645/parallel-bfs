@@ -1,10 +1,10 @@
-
+# parallel-bfs
 
 Sequential and parallel implementation of a [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) algorithm.
 
 ## Requirements
 
-You need [Bazel](https://bazel.build/) build system to build and run project code.
+You need [CMake](https://cmake.org/) build system to build and run project code.
 
 ## Build
 
@@ -22,10 +22,14 @@ You need [Bazel](https://bazel.build/) build system to build and run project cod
    $ git submodule update --init --recursive
    ```
 
-2. Build all:
+2. Build:
 
    ```sh
-   $ bazel build //...
+   # without tests
+   $ cmake -S. -Bbuild -DBUILD_TESTING=false && make -C build
+
+   # with tests and run them
+   $ cmake -S. -Bbuild -DBUILD_TESTING=true && make -C build && ctest --test-dir build
    ```
 
 ## Comparison of implementations
@@ -35,18 +39,17 @@ You need [Bazel](https://bazel.build/) build system to build and run project cod
 Run:
 
 ```sh
-$ PARLAY_NUM_THREADS=<number of worker threads> bazel run //main:compare
+$ PARLAY_NUM_THREADS=<number of worker threads> ./bin/compare
 ```
 
-Parallel implementation on **4** processes is **~2.6** times faster than sequential implementation:
+Parallel implementation on **4** processes is **~2.45** times faster than sequential implementation:
 
 ```sh
-$ PARLAY_NUM_THREADS=4 bazel run //main:compare
-INFO: ...
-run[0] SUCCESS: par::bfs is 2.63673 times faster than seq::bfs
-run[1] SUCCESS: par::bfs is 2.56684 times faster than seq::bfs
-run[2] SUCCESS: par::bfs is 2.60592 times faster than seq::bfs
-run[3] SUCCESS: par::bfs is 2.58344 times faster than seq::bfs
-run[4] SUCCESS: par::bfs is 2.56865 times faster than seq::bfs
-RESULT: par::bfs is faster than seq::bfs on average 2.59232 times
+$ PARLAY_NUM_THREADS=4 ./bin/compare
+run[1] SUCCESS: par::bfs is 2.45453 times faster than seq::bfs
+run[2] SUCCESS: par::bfs is 2.45185 times faster than seq::bfs
+run[3] SUCCESS: par::bfs is 2.44475 times faster than seq::bfs
+run[4] SUCCESS: par::bfs is 2.44563 times faster than seq::bfs
+run[5] SUCCESS: par::bfs is 2.44986 times faster than seq::bfs
+RESULT: par::bfs is faster than seq::bfs on average 2.44932 times
 ```

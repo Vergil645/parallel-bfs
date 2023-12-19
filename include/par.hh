@@ -5,9 +5,9 @@
 #include <limits>
 #include <vector>
 
-#include "external/parlaylib/include/parlay/parallel.h"
-#include "external/parlaylib/include/parlay/primitives.h"
-#include "external/parlaylib/include/parlay/sequence.h"
+#include <parlay/parallel.h>
+#include <parlay/primitives.h>
+#include <parlay/sequence.h>
 
 namespace par {
     const std::size_t INF = std::numeric_limits<std::size_t>::max();

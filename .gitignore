@@ -1,3 +1,6 @@
 /.vscode
 
 /bazel*
+/bin
+/build
+/test/bin

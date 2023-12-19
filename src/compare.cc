@@ -2,34 +2,12 @@
 #include <iostream>
 #include <vector>
 
-#include "lib/graph/graph.hh"
-#include "lib/seq/seq.hh"
-#include "lib/par/par.hh"
+#include <par.hh>
+#include <seq.hh>
+#include <test.hh>
 
 #define RUN_COUNT 5
 #define CUBE_EDGE 500
-
-struct TestData {
-    CubeGraph graph;
-    std::vector<std::size_t> dist;
-    std::size_t src_vertex;
-};
-
-static TestData generate_test_data_cube_graph(std::size_t cube_edge) {
-    CubeGraph graph(cube_edge);
-    std::vector<std::size_t> dist(graph.size());
-
-    for (std::size_t x = 0; x <= cube_edge; ++x) {
-        for (std::size_t y = 0; y <= cube_edge; ++y) {
-            for (std::size_t z = 0; z <= cube_edge; ++z) {
-                auto u = graph.node_to_vertex(x, y, z);
-                dist[u] = x + y + z;
-            }
-        }
-    }
-
-    return { graph, dist, graph.node_to_vertex(0, 0, 0) };
-}
 
 int main(void) {
     auto started = std::chrono::high_resolution_clock::now();
@@ -41,11 +19,11 @@ int main(void) {
     double ratio_sum = 0;
     double ratio_avg;
 
-    TestData test_data = generate_test_data_cube_graph(CUBE_EDGE);
+    test::TestData test_data = test::generate_test_data_of_cube_graph(CUBE_EDGE);
     std::vector<std::size_t> dist_seq;
     std::vector<std::size_t> dist_par;
 
-    for (int run_no = 0; run_no < RUN_COUNT; ++run_no) {
+    for (int run_no = 1; run_no <= RUN_COUNT; ++run_no) {
         // sequential BFS
         {
             started = std::chrono::high_resolution_clock::now();
