@@ -13,6 +13,8 @@ namespace seq {
         std::vector<bool> reached(graph.size(), false);
         std::vector<std::size_t> dist(graph.size(), INF);
         std::queue<std::size_t> vertices_queue;
+        std::size_t *neighbours = new std::size_t[graph.max_neighbours_count()];
+        std::size_t n_count;
 
         reached[src_vertex] = true;
         dist[src_vertex] = 0;
@@ -22,7 +24,10 @@ namespace seq {
             auto u = vertices_queue.front();
             vertices_queue.pop();
 
-            for (auto v : graph.neighbours(u)) {
+            graph.neighbours(u, neighbours, n_count);
+
+            for (std::size_t i = 0; i < n_count; ++i) {
+                auto v = neighbours[i];
                 if (!reached[v]) {
                     reached[v] = true;
                     dist[v] = dist[u] + 1;
@@ -30,6 +35,8 @@ namespace seq {
                 }
             }
         }
+
+        delete[] neighbours;
 
         return dist;
     }

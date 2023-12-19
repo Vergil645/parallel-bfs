@@ -35,16 +35,17 @@ namespace par {
 
             frontier_next.resize(frontier_next_size);
             parlay::parallel_for(0, frontier.size(), [&] (auto i) {
-                auto neighbours = graph.neighbours(frontier[i]);
+                std::size_t idx_start = deg_pref_sum[i];
+                std::size_t n_count;
 
-                for (std::size_t j = 0; j < neighbours.size(); ++j) {
-                    std::size_t idx_start = deg_pref_sum[i];
-                    auto v = neighbours[j];
+                graph.neighbours(frontier[i], frontier_next.data() + idx_start, n_count);
+
+                for (std::size_t j = 0; j < n_count; ++j) {
+                    auto v = frontier_next[idx_start + j];
                     bool expected = false;
 
                     if (reached[v].compare_exchange_strong(expected, true)) {
                         dist[v] = d;
-                        frontier_next[idx_start + j] = v;
                     } else {
                         frontier_next[idx_start + j] = INF;
                     }

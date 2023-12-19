@@ -9,8 +9,12 @@ struct CubeGraph {
 
     explicit CubeGraph(std::size_t edge) : edge(edge) {}
 
-    int size() const {
+    std::size_t size() const {
         return (edge + 1) * (edge + 1) * (edge + 1);
+    }
+
+    std::size_t max_neighbours_count() const {
+        return 3;
     }
 
     std::size_t node_to_vertex(std::size_t x, std::size_t y, std::size_t z) const {
@@ -24,16 +28,14 @@ struct CubeGraph {
         return {x, y, z};
     }
 
-    std::vector<std::size_t> neighbours(std::size_t u) const {
+    void neighbours(std::size_t u, std::size_t *dst, std::size_t &n_count) const {
         std::size_t x, y, z;
-        std::vector<std::size_t> res;
+        n_count = 0;
 
         std::tie(x, y, z) = vertex_to_node(u);
-        if (x < edge) res.push_back(node_to_vertex(x + 1, y, z));
-        if (y < edge) res.push_back(node_to_vertex(x, y + 1, z));
-        if (z < edge) res.push_back(node_to_vertex(x, y, z + 1));
-
-        return res;
+        if (x < edge) dst[n_count++] = node_to_vertex(x + 1, y, z);
+        if (y < edge) dst[n_count++] = node_to_vertex(x, y + 1, z);
+        if (z < edge) dst[n_count++] = node_to_vertex(x, y, z + 1);
     }
 
     std::size_t neighbours_count(std::size_t u) const {
