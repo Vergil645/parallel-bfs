@@ -23,7 +23,7 @@ int main(void) {
     std::vector<std::size_t> dist_seq;
     std::vector<std::size_t> dist_par;
 
-    for (int run_no = 1; run_no <= RUN_COUNT; ++run_no) {
+    for (int run_no = 0; run_no < RUN_COUNT; ++run_no) {
         // sequential BFS
         {
             started = std::chrono::high_resolution_clock::now();
@@ -33,7 +33,7 @@ int main(void) {
             time_seq = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
 
             if (dist_seq != test_data.dist) {
-                std::cout << "run[" << run_no << "] FAIL: incorrect seq::bfs dist" << std::endl;
+                std::cout << "run[" << run_no + 1 << "] FAIL: incorrect seq::bfs dist" << std::endl;
                 return 1;
             }
         }
@@ -47,7 +47,7 @@ int main(void) {
             time_par = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
 
             if (dist_par != test_data.dist) {
-                std::cout << "run[" << run_no << "] FAIL: incorrect par::bfs dist" << std::endl;
+                std::cout << "run[" << run_no + 1 << "] FAIL: incorrect par::bfs dist" << std::endl;
                 return 1;
             }
         }
@@ -55,7 +55,7 @@ int main(void) {
         ratio[run_no] = (double) time_seq / time_par;
         ratio_sum += ratio[run_no];
 
-        std::cout << "run[" << run_no << "] SUCCESS: par::bfs is " << ratio[run_no] << " times faster than seq::bfs" << std::endl;
+        std::cout << "run[" << run_no + 1 << "] SUCCESS: par::bfs is " << ratio[run_no] << " times faster than seq::bfs" << std::endl;
     }
     ratio_avg = ratio_sum / RUN_COUNT;
 

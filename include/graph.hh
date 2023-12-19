@@ -9,7 +9,7 @@ struct CubeGraph {
 
     explicit CubeGraph(std::size_t edge) : edge(edge) {}
 
-    int size() const {
+    std::size_t size() const {
         return (edge + 1) * (edge + 1) * (edge + 1);
     }
 
